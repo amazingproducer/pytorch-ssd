@@ -9,7 +9,7 @@ import itertools
 import torch
 
 from torch.utils.data import DataLoader, ConcatDataset
-from torch.optim.lr_scheduler import CosineAnnealingLR, MultiStepLR
+from torch.optim.lr_scheduler import CosineAnnealingLR, MultiStepLR, ReduceLROnPlateau
 
 from vision.utils.misc import str2bool, Timer, freeze_net_layers, store_labels
 from vision.ssd.ssd import MatchPrior
@@ -68,7 +68,7 @@ parser.add_argument('--extra-layers-lr', default=None, type=float,
 
 # Scheduler
 parser.add_argument('--scheduler', default="cosine", type=str,
-                    help="Scheduler for SGD. It can one of multi-step and cosine")
+                    help="Scheduler for SGD. It can one of multi-step, cosine, or reduce-on-plateau")
 
 # Params for Multi-step Scheduler
 parser.add_argument('--milestones', default="80,100", type=str,
@@ -329,6 +329,11 @@ if __name__ == '__main__':
     elif args.scheduler == 'cosine':
         logging.info("Uses CosineAnnealingLR scheduler.")
         scheduler = CosineAnnealingLR(optimizer, args.t_max, last_epoch=last_epoch)
+
+    elif args.scheduler == 'reduce-on-plateau':
+        logging.info("Uses ReduceLROnPlateau scheduler.")
+        scheduler = ReduceLROnPlateau(optimizer, verbose=True, patience=3)
+
     else:
         logging.fatal(f"Unsupported Scheduler: {args.scheduler}.")
         parser.print_help(sys.stderr)
@@ -338,7 +343,7 @@ if __name__ == '__main__':
     logging.info(f"Start training from epoch {last_epoch + 1}.")
     
     for epoch in range(last_epoch + 1, args.num_epochs):
-        scheduler.step()
+        val_loss = 0
         train(train_loader, net, criterion, optimizer,
               device=DEVICE, debug_steps=args.debug_steps, epoch=epoch)
         
@@ -351,7 +356,13 @@ if __name__ == '__main__':
                 f"Validation Classification Loss: {val_classification_loss:.4f}"
             )
             model_path = os.path.join(args.checkpoint_folder, f"{args.net}-Epoch-{epoch}-Loss-{val_loss}.pth")
-            net.save(model_path)
-            logging.info(f"Saved model {model_path}")
+            if args.validation_epochs == 1 and epoch is not args.num_epochs -1:
+                if epoch % 10 == 0:
+                    net.save(model_path)
+                    logging.info(f"Saved model {model_path}")
+            else:
+                net.save(model_path)
+                logging.info(f"Saved model {model_path}")
+        scheduler.step(val_loss)
 
     logging.info("Task done, exiting program.")
