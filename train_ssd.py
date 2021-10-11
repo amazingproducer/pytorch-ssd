@@ -7,6 +7,8 @@ import logging
 import argparse
 import itertools
 import torch
+from datetime import datetime as dt 
+import csv
 
 from torch.utils.data import DataLoader, ConcatDataset
 from torch.optim.lr_scheduler import CosineAnnealingLR, MultiStepLR, ReduceLROnPlateau
@@ -78,6 +80,13 @@ parser.add_argument('--milestones', default="80,100", type=str,
 parser.add_argument('--t-max', default=100, type=float,
                     help='T_max value for Cosine Annealing Scheduler.')
 
+# Params for Reduce on LR Plateau Scheduler
+parser.add_argument('--patience', default=10, type=int,
+                    help='Number of non-learning epochs to ignore before reducing learning rate.')
+parser.add_argument('--reduction-factor', default=0.1, type=float,
+                    help='Factor by which the learning rate will be reduced upon plateauing.')
+
+
 # Train params
 parser.add_argument('--batch-size', default=4, type=int,
                     help='Batch size for training')
@@ -87,6 +96,8 @@ parser.add_argument('--num-workers', '--workers', default=2, type=int,
                     help='Number of workers used in dataloading')
 parser.add_argument('--validation-epochs', default=1, type=int,
                     help='the number epochs between running validation')
+parser.add_argument('--checkpoint-epochs', default=1, type=int,
+                    help='the number of epochs between checkpoint saves')
 parser.add_argument('--debug-steps', default=10, type=int,
                     help='Set the debug log output frequency.')
 parser.add_argument('--use-cuda', default=True, type=str2bool,
@@ -98,12 +109,22 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                     format='%(asctime)s - %(message)s', datefmt="%Y-%m-%d %H:%M:%S")
                     
 args = parser.parse_args()
+report_path = os.path.join(args.checkpoint_folder, f"loss.report_{dt.utcnow().strftime('%Y-%m-%d_%H%M.%S')}.csv")
+fieldnames = ['epoch', 'learning_rate', 'validation_loss', 'regression_loss', 'classification_loss']
+os.mkdir(os.path.join(args.checkpoint_folder))
+with open(report_path, 'a') as report_file:
+    writer = csv.DictWriter(report_file, fieldnames=fieldnames)
+    writer.writeheader()
+
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() and args.use_cuda else "cpu")
 
 if args.use_cuda and torch.cuda.is_available():
     torch.backends.cudnn.benchmark = True
     logging.info("Using CUDA...")
 
+def get_current_lr(optimizer):
+    for param_group in optimizer.param_groups:
+        return param_group['lr']
 
 def train(loader, net, criterion, optimizer, device, debug_steps=100, epoch=-1):
     net.train(True)
@@ -332,7 +353,7 @@ if __name__ == '__main__':
 
     elif args.scheduler == 'reduce-on-plateau':
         logging.info("Uses ReduceLROnPlateau scheduler.")
-        scheduler = ReduceLROnPlateau(optimizer, verbose=True, patience=3)
+        scheduler = ReduceLROnPlateau(optimizer, verbose=True, patience=args.patience)
 
     else:
         logging.fatal(f"Unsupported Scheduler: {args.scheduler}.")
@@ -349,20 +370,19 @@ if __name__ == '__main__':
         
         if epoch % args.validation_epochs == 0 or epoch == args.num_epochs - 1:
             val_loss, val_regression_loss, val_classification_loss = test(val_loader, net, criterion, DEVICE)
+            with open(report_path, 'a') as report_file:
+                writer = csv.DictWriter(report_file, fieldnames=fieldnames)
+                writer.writerow({'epoch':epoch, 'learning_rate':get_current_lr(optimizer), 'validation_loss':val_loss, 'regression_loss':val_regression_loss, 'classification_loss':val_classification_loss})
             logging.info(
                 f"Epoch: {epoch}, " +
                 f"Validation Loss: {val_loss:.4f}, " +
                 f"Validation Regression Loss {val_regression_loss:.4f}, " +
-                f"Validation Classification Loss: {val_classification_loss:.4f}"
+                f"Validation Classification Loss: {val_classification_loss:.4f}\n"
             )
             model_path = os.path.join(args.checkpoint_folder, f"{args.net}-Epoch-{epoch}-Loss-{val_loss}.pth")
-            if args.validation_epochs == 1 and epoch is not args.num_epochs -1:
-                if epoch % 10 == 0:
-                    net.save(model_path)
-                    logging.info(f"Saved model {model_path}")
-            else:
-                net.save(model_path)
-                logging.info(f"Saved model {model_path}")
-        scheduler.step(val_loss)
+        if epoch % args.checkpoint_epochs == 0 or epoch == args.num_epochs - 1:
+            net.save(model_path)
+            logging.info(f"Saved model {model_path}")
+        scheduler.step(val_loss) # TODO test the use of this parameter for failure in earlier schedulers
 
     logging.info("Task done, exiting program.")
