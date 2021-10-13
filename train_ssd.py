@@ -42,7 +42,7 @@ parser.add_argument('--balance-data', action='store_true',
 parser.add_argument('--net', default="mb1-ssd",
                     help="The network architecture, it can be mb1-ssd, mb1-lite-ssd, mb2-ssd-lite or vgg16-ssd.")
 parser.add_argument('--freeze-base-net', action='store_true',
-                    help="Freeze base net layers.")
+                    help="Freeze bacreate_netse net layers.")
 parser.add_argument('--freeze-net', action='store_true',
                     help="Freeze all the layers except the prediction head.")
 parser.add_argument('--mb2-width-mult', default=1.0, type=float,
@@ -109,12 +109,6 @@ logging.basicConfig(stream=sys.stdout, level=logging.INFO,
                     format='%(asctime)s - %(message)s', datefmt="%Y-%m-%d %H:%M:%S")
                     
 args = parser.parse_args()
-report_path = os.path.join(args.checkpoint_folder, f"loss.report_{dt.utcnow().strftime('%Y-%m-%d_%H%M.%S')}.csv")
-fieldnames = ['epoch', 'learning_rate', 'validation_loss', 'regression_loss', 'classification_loss']
-os.mkdir(os.path.join(args.checkpoint_folder))
-with open(report_path, 'a') as report_file:
-    writer = csv.DictWriter(report_file, fieldnames=fieldnames)
-    writer.writeheader()
 
 DEVICE = torch.device("cuda:0" if torch.cuda.is_available() and args.use_cuda else "cpu")
 
@@ -197,6 +191,14 @@ if __name__ == '__main__':
 
         if not os.path.exists(args.checkpoint_folder):
             os.mkdir(args.checkpoint_folder)
+
+    # create and prepare csv file for retaining training result data
+    fieldnames = ['epoch', 'learning_rate', 'validation_loss', 'regression_loss', 'classification_loss']
+    start_time = dt.utcnow().strftime('%Y-%m-%d_%H%M.%S')
+    report_path = os.path.join(args.checkpoint_folder, f"{start_time}_loss.report.csv")
+    with open(report_path, 'a') as report_file:
+        writer = csv.DictWriter(report_file, fieldnames=fieldnames)
+        writer.writeheader()
             
     # select the network architecture and config     
     if args.net == 'vgg16-ssd':
@@ -377,12 +379,14 @@ if __name__ == '__main__':
                 f"Epoch: {epoch}, " +
                 f"Validation Loss: {val_loss:.4f}, " +
                 f"Validation Regression Loss {val_regression_loss:.4f}, " +
-                f"Validation Classification Loss: {val_classification_loss:.4f}\n"
+                f"Validation Classification Loss: {val_classification_loss:.4f}"
             )
-            model_path = os.path.join(args.checkpoint_folder, f"{args.net}-Epoch-{epoch}-Loss-{val_loss}.pth")
+            model_path = os.path.join(args.checkpoint_folder, f"{start_time}_{args.net}-Epoch-{epoch}-Loss-{val_loss}.pth")
+            opt_path = os.path.join(args.checkpoint_folder, f"{start_time}_{args.net}-Epoch-{epoch}-LR-{str(get_current_lr(optimizer))}.opt.pth")
         if epoch % args.checkpoint_epochs == 0 or epoch == args.num_epochs - 1:
-            net.save(model_path)
+            net.save(model_path, optimizer, os.path.join(args.checkpoint_folder, f""))
             logging.info(f"Saved model {model_path}")
+            logging.info(f"Saved optimizer {opt_path}")
         scheduler.step(val_loss) # TODO test the use of this parameter for failure in earlier schedulers
 
     logging.info("Task done, exiting program.")
