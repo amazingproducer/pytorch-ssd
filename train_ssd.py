@@ -346,6 +346,7 @@ if __name__ == '__main__':
         o_epoch = ckpt_f.split('Epoch-')[1].split('-')[0]
         o_pre_path = ckpt_f.split('Epoch-')[0] + o_epoch
         opt_resume_path = ""
+        print(o_epoch, o_pre_path)
         for fo, sf, fi in os.walk(o_dir):
             for n in fi:
                 print(n)
