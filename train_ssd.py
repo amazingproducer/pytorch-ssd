@@ -356,16 +356,21 @@ if __name__ == '__main__':
         #     print(i)
         # for i in optimizer.param_groups:
         #     print(i['lr'])
-        o_lr = optimizer.param_groups[2]['lr']
-        o_b_lr = optimizer.param_groups[0]['lr']
-        o_el_lr = optimizer.param_groups[1]['lr']
-        logging.info(f"Learning rate: {o_lr}, Base net learning rate: {o_b_lr}, "
-                    + f"Extra Layers learning rate: {o_el_lr}.")
-    else:
-        for i in optimizer.param_groups:
-            print(f" optimizer: {i['lr']}")
-        logging.info(f"Learning rate: {args.lr}, Base net learning rate: {base_net_lr}, "
-                    + f"Extra Layers learning rate: {extra_layers_lr}.")
+        # o_lr = optimizer.param_groups[2]['lr']
+        # o_b_lr = optimizer.param_groups[0]['lr']
+        # o_el_lr = optimizer.param_groups[1]['lr']
+        # logging.info(f"Learning rate: {o_lr}, Base net learning rate: {o_b_lr}, "
+        #             + f"Extra Layers learning rate: {o_el_lr}.")
+    # else:
+    #     for i in optimizer.param_groups:
+    #         print(f" optimizer: {i['lr']}")
+    #     logging.info(f"Learning rate: {args.lr}, Base net learning rate: {base_net_lr}, "
+    #                 + f"Extra Layers learning rate: {extra_layers_lr}.")
+    o_lr = optimizer.param_groups[2]['lr']
+    o_b_lr = optimizer.param_groups[0]['lr']
+    o_el_lr = optimizer.param_groups[1]['lr']
+    logging.info(f"Learning rate: {o_lr}, Base net learning rate: {o_b_lr}, "
+                + f"Extra Layers learning rate: {o_el_lr}.")
 
     # set learning rate policy
     if args.scheduler == 'multi-step':
