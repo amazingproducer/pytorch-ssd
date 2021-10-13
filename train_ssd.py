@@ -360,7 +360,7 @@ if __name__ == '__main__':
                     + f"Extra Layers learning rate: {get_current_lr(optimizer)}.")
     else:
         for i in optimizer.param_groups:
-            print(i['lr'])
+            print(f" optimizer: {i['lr']}")
         logging.info(f"Learning rate: {args.lr}, Base net learning rate: {base_net_lr}, "
                     + f"Extra Layers learning rate: {extra_layers_lr}.")
 
