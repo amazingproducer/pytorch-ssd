@@ -340,6 +340,17 @@ if __name__ == '__main__':
                              center_variance=0.1, size_variance=0.2, device=DEVICE)
     optimizer = torch.optim.SGD(params, lr=args.lr, momentum=args.momentum,
                                 weight_decay=args.weight_decay)
+    if args.resume:
+        ckpt_f = args.resume.split('/')[-1]
+        o_dir = args.resume.split(ckpt_f)[0]
+        o_epoch = ckpt_f.split('Epoch-')[1].split('-')[0]
+        o_pre_path = ckpt_f.split('Epoch-')[0] + o_epoch
+        opt_resume_path = ""
+        for fo, sf, fi in os.walk(o_dir):
+            for n in fi:
+                if n.startswith(o_pre_path) and n.endswith('opt.pth'):
+                    opt_resume_path = os.path.join(o_dir, n)
+        optimizer.load_state_dict(opt_resume_path['state_dict'])
     logging.info(f"Learning rate: {args.lr}, Base net learning rate: {base_net_lr}, "
                  + f"Extra Layers learning rate: {extra_layers_lr}.")
 
