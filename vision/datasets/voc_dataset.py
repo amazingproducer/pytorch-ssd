@@ -73,7 +73,7 @@ class VOCDataset:
             boxes = boxes[is_difficult == 0]
             labels = labels[is_difficult == 0]
             
-        #print('__getitem__  image_id=' + str(image_id) + ' \nboxes=' + str(boxes) + ' \nlabels=' + str(labels))
+#        print('__getitem__  image_id=' + str(image_id) + ' \nboxes=' + str(boxes) + ' \nlabels=' + str(labels))
             
         image = self._read_image(image_id)
         
