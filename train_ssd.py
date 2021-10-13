@@ -349,11 +349,12 @@ if __name__ == '__main__':
         print(o_epoch, o_pre_path)
         for fo, sf, fi in os.walk(o_dir):
             for n in fi:
-                print(n)
                 if n.startswith(o_pre_path) and n.endswith('opt.pth'):
                     opt_resume_path = os.path.join(o_dir, n)
 #        optimizer.load_state_dict(torch.load(opt_resume_path)['state_dict'])
         optimizer.load_state_dict(torch.load(opt_resume_path))
+        for i in optimizer.state_dict():
+            print(i)
     logging.info(f"Learning rate: {args.lr}, Base net learning rate: {base_net_lr}, "
                  + f"Extra Layers learning rate: {extra_layers_lr}.")
 
