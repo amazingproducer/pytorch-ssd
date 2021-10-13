@@ -356,8 +356,11 @@ if __name__ == '__main__':
         #     print(i)
         # for i in optimizer.param_groups:
         #     print(i['lr'])
-        logging.info(f"Learning rate: {get_current_lr(optimizer)}, Base net learning rate: {get_current_lr(optimizer)}, "
-                    + f"Extra Layers learning rate: {get_current_lr(optimizer)}.")
+        o_lr = optimizer.param_groups[2]['lr']
+        o_b_lr = optimizer.param_groups[0]['lr']
+        o_el_lr = optimizer.param_groups[1]['lr']
+        logging.info(f"Learning rate: {o_lr}, Base net learning rate: {o_b_lr}, "
+                    + f"Extra Layers learning rate: {o_el_lr}.")
     else:
         for i in optimizer.param_groups:
             print(f" optimizer: {i['lr']}")
