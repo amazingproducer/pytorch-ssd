@@ -348,6 +348,7 @@ if __name__ == '__main__':
         opt_resume_path = ""
         for fo, sf, fi in os.walk(o_dir):
             for n in fi:
+                print(n)
                 if n.startswith(o_pre_path) and n.endswith('opt.pth'):
                     opt_resume_path = os.path.join(o_dir, n)
         optimizer.load_state_dict(torch.load(opt_resume_path)['state_dict'])
