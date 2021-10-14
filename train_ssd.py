@@ -369,6 +369,9 @@ if __name__ == '__main__':
     print("MODEL:")
     for i in net.state_dict():
         print(i)
+    print("MODEL.params:")
+    for i in net.param_groups:
+        print(i)
     print("OPT:")
     for i in optimizer.state_dict():
         print(i)
