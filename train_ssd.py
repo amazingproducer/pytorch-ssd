@@ -366,7 +366,8 @@ if __name__ == '__main__':
     #         print(f" optimizer: {i['lr']}")
     #     logging.info(f"Learning rate: {args.lr}, Base net learning rate: {base_net_lr}, "
     #                 + f"Extra Layers learning rate: {extra_layers_lr}.")
-
+    for i in net.state_dict():
+        print(i)
     o_lr = optimizer.param_groups[2]['lr']
     o_b_lr = optimizer.param_groups[0]['lr']
     o_el_lr = optimizer.param_groups[1]['lr']
