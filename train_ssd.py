@@ -421,7 +421,7 @@ if __name__ == '__main__':
 #            opt_path = os.path.join(args.checkpoint_folder, f"{start_time}_{args.net}-Epoch-{epoch}-LR-{str(get_current_lr(optimizer))}.opt.pth")
         if epoch % args.checkpoint_epochs == 0 or epoch == args.num_epochs - 1:
             # net.save(model_path, optimizer, opt_path)
-            net.save(model_path, optimizer, opt_path)
+            net.save(model_path, optimizer)
             logging.info(f"Saved model {model_path}")
 #            logging.info(f"Saved optimizer {opt_path}")
         scheduler.step(val_loss) # TODO test the use of this parameter for failure in earlier schedulers
