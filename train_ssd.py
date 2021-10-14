@@ -348,10 +348,10 @@ if __name__ == '__main__':
         # o_pre_path = f"{ckpt_f.split('Epoch-')[0]}Epoch-{o_epoch}"
         # opt_resume_path = ""
 #        print(o_epoch, o_pre_path)
-        for fo, sf, fi in os.walk(o_dir):
-            for n in fi:
-                if n.startswith(o_pre_path) and n.endswith('opt.pth'):
-                    opt_resume_path = os.path.join(o_dir, n)
+        # for fo, sf, fi in os.walk(o_dir):
+        #     for n in fi:
+        #         if n.startswith(o_pre_path) and n.endswith('opt.pth'):
+        #             opt_resume_path = os.path.join(o_dir, n)
 #        optimizer.load_state_dict(torch.load(opt_resume_path))
         # for i in optimizer.state_dict()['param_groups']:
         #     print(i)
