@@ -344,6 +344,7 @@ if __name__ == '__main__':
         optimizer.load_state_dict(torch.load(args.resume)['optimizer_state_dict'])
         r_epoch = torch.load(args.resume)['training_epoch']
         print(f"Resuming from previous epoch: {r_epoch}")
+        last_epoch = r_epoch
         # ckpt_f = args.resume.split('/')[-1]
         # o_dir = args.resume.split(ckpt_f)[0]
         # o_epoch = ckpt_f.split('Epoch-')[1].split('-')[0]
@@ -407,7 +408,7 @@ if __name__ == '__main__':
     # train for the desired number of epochs
     logging.info(f"Start training from epoch {last_epoch + 1}.")
     
-    for epoch in range(last_epoch + 1, args.num_epochs):
+    for epoch in range(last_epoch + 1, args.num_epochs + r_epoch):
         val_loss = 0
         train(train_loader, net, criterion, optimizer,
               device=DEVICE, debug_steps=args.debug_steps, epoch=epoch)
