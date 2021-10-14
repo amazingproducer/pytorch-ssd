@@ -341,17 +341,18 @@ if __name__ == '__main__':
     optimizer = torch.optim.SGD(params, lr=args.lr, momentum=args.momentum,
                                 weight_decay=args.weight_decay)
     if args.resume:
-        ckpt_f = args.resume.split('/')[-1]
-        o_dir = args.resume.split(ckpt_f)[0]
-        o_epoch = ckpt_f.split('Epoch-')[1].split('-')[0]
-        o_pre_path = f"{ckpt_f.split('Epoch-')[0]}Epoch-{o_epoch}"
-        opt_resume_path = ""
+        optimizer.load_state_dict(torch.load(args.resume)['optimizer_state_dict'])
+        # ckpt_f = args.resume.split('/')[-1]
+        # o_dir = args.resume.split(ckpt_f)[0]
+        # o_epoch = ckpt_f.split('Epoch-')[1].split('-')[0]
+        # o_pre_path = f"{ckpt_f.split('Epoch-')[0]}Epoch-{o_epoch}"
+        # opt_resume_path = ""
 #        print(o_epoch, o_pre_path)
         for fo, sf, fi in os.walk(o_dir):
             for n in fi:
                 if n.startswith(o_pre_path) and n.endswith('opt.pth'):
                     opt_resume_path = os.path.join(o_dir, n)
-        optimizer.load_state_dict(torch.load(opt_resume_path))
+#        optimizer.load_state_dict(torch.load(opt_resume_path))
         # for i in optimizer.state_dict()['param_groups']:
         #     print(i)
         # for i in optimizer.param_groups:
@@ -368,9 +369,6 @@ if __name__ == '__main__':
     #                 + f"Extra Layers learning rate: {extra_layers_lr}.")
     print("MODEL:")
     for i in net.state_dict():
-        print(i)
-    print("MODEL.params:")
-    for i in net.param_groups:
         print(i)
     print("OPT:")
     for i in optimizer.state_dict():
@@ -420,11 +418,12 @@ if __name__ == '__main__':
                 f"Validation Classification Loss: {val_classification_loss:.4f}"
             )
             model_path = os.path.join(args.checkpoint_folder, f"{start_time}_{args.net}-Epoch-{epoch}-Loss-{val_loss}.pth")
-            opt_path = os.path.join(args.checkpoint_folder, f"{start_time}_{args.net}-Epoch-{epoch}-LR-{str(get_current_lr(optimizer))}.opt.pth")
+#            opt_path = os.path.join(args.checkpoint_folder, f"{start_time}_{args.net}-Epoch-{epoch}-LR-{str(get_current_lr(optimizer))}.opt.pth")
         if epoch % args.checkpoint_epochs == 0 or epoch == args.num_epochs - 1:
+            # net.save(model_path, optimizer, opt_path)
             net.save(model_path, optimizer, opt_path)
             logging.info(f"Saved model {model_path}")
-            logging.info(f"Saved optimizer {opt_path}")
+#            logging.info(f"Saved optimizer {opt_path}")
         scheduler.step(val_loss) # TODO test the use of this parameter for failure in earlier schedulers
 
     logging.info("Task done, exiting program.")

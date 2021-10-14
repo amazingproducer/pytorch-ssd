@@ -132,13 +132,19 @@ class SSD(nn.Module):
         self.regression_headers.apply(_xavier_init_)
 
     def load(self, model):
-        self.load_state_dict(torch.load(model, map_location=lambda storage, loc: storage))
+#        self.load_state_dict(torch.load(model, map_location=lambda storage, loc: storage))
+        self.load_state_dict(torch.load(model['model_state_dict'], map_location=lambda storage, loc: storage))
 
 #    def save(self, model_path):
 #        torch.save(self.state_dict(), model_path)
-    def save(self, model_path, optimizer, opt_path):
-        torch.save(self.state_dict(), model_path)
-        torch.save(optimizer.state_dict(), opt_path)
+    # def save(self, model_path, optimizer, opt_path):
+    #     torch.save(self.state_dict(), model_path)
+    #     torch.save(optimizer.state_dict(), opt_path)
+    def save(self, model_path, optimizer):
+        torch.save({
+            'model_state_dict':self.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict()
+            }, model_path)
 
 
 class MatchPrior(object):
