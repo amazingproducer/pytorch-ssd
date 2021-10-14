@@ -345,7 +345,7 @@ if __name__ == '__main__':
         optimizer.load_state_dict(torch.load(args.resume)['optimizer_state_dict'])
         r_epoch = torch.load(args.resume)['training_epoch']
         print(f"Resuming from previous epoch: {r_epoch}")
-        last_epoch = r_epoch
+        last_epoch = r_epoch + 1
         # ckpt_f = args.resume.split('/')[-1]
         # o_dir = args.resume.split(ckpt_f)[0]
         # o_epoch = ckpt_f.split('Epoch-')[1].split('-')[0]
