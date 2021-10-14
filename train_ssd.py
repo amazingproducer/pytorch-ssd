@@ -373,6 +373,10 @@ if __name__ == '__main__':
     print("OPT:")
     for i in optimizer.state_dict():
         print(i)
+    for i in optimizer.state_dict()['state']:
+        print(i)
+    for i in optimizer.state_dict()['param_groups']:
+        print(i)
     o_lr = optimizer.param_groups[2]['lr']
     o_b_lr = optimizer.param_groups[0]['lr']
     o_el_lr = optimizer.param_groups[1]['lr']
