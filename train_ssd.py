@@ -343,6 +343,7 @@ if __name__ == '__main__':
     if args.resume:
         optimizer.load_state_dict(torch.load(args.resume)['optimizer_state_dict'])
         r_epoch = torch.load(args.resume)['training_epoch']
+        print(f"Resuming from previous epoch: {r_epoch}")
         # ckpt_f = args.resume.split('/')[-1]
         # o_dir = args.resume.split(ckpt_f)[0]
         # o_epoch = ckpt_f.split('Epoch-')[1].split('-')[0]
@@ -378,7 +379,6 @@ if __name__ == '__main__':
         print(i)
     for i in optimizer.state_dict()['param_groups']:
         print(i)
-    print(f"Resuming from previous epoch: {r_epoch}")
     o_lr = optimizer.param_groups[2]['lr']
     o_b_lr = optimizer.param_groups[0]['lr']
     o_el_lr = optimizer.param_groups[1]['lr']
