@@ -1,9 +1,12 @@
 # SSD-based Object Detection in PyTorch
 
-This repo implements [SSD (Single Shot MultiBox Detector)](https://arxiv.org/abs/1512.02325) in PyTorch for object detection, using MobileNet backbones.  It also has out-of-box support for retraining on Google Open Images dataset.  
+This repo expands upon the work presented in [https://github.com/qfgaohao/pytorch-ssd](https://github.com/qfgaohao/pytorch-ssd) to provide the following:
 
-> For documentation, please refer to Object Detection portion of the **[Hello AI World](https://github.com/dusty-nv/jetson-inference/tree/dev#training)** tutorial:
-> [Re-training SSD-Mobilenet](https://github.com/dusty-nv/jetson-inference/blob/dev/docs/pytorch-ssd.md)
-
-Thanks to @qfgaohao for the upstream implementation from:  [https://github.com/qfgaohao/pytorch-ssd](https://github.com/qfgaohao/pytorch-ssd)
-
+## - Implementation of the `ReduceLROnPlateau` Learning Rate Scheduler
+     - An additional LR scheduler to prevent overfitting
+## - Inclusion of Optimizer `state_dict` in training checkpoint files
+     - Facilitates the resumption of training sessions at previously-determined learning rates
+## - Awareness of previous session epoch when using `resume` feature
+     - Epoch numeration of checkpoint files for resumed sessions starts at the loaded checkpoint file's epoch value.
+## - Generation of CSV loss reports for each training session
+     - One epoch per row; includes learning rate, validation/regression/classification losses
