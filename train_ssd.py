@@ -280,6 +280,7 @@ if __name__ == '__main__':
     net = create_net(num_classes)
     min_loss = -10000.0
     last_epoch = -1
+    r_epoch = 0
 
     # freeze certain layers (if requested)
     base_net_lr = args.base_net_lr if args.base_net_lr is not None else args.lr
