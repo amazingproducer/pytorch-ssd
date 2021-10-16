@@ -125,6 +125,9 @@ def train(loader, net, criterion, optimizer, device, debug_steps=100, epoch=-1):
     running_loss = 0.0
     running_regression_loss = 0.0
     running_classification_loss = 0.0
+    epoch_loss = 0.0
+    epoch_regression_loss = 0.0
+    epoch_classification_loss = 0.0
     for i, data in enumerate(loader):
         images, boxes, labels = data
         images = images.to(device)
@@ -141,6 +144,9 @@ def train(loader, net, criterion, optimizer, device, debug_steps=100, epoch=-1):
         running_loss += loss.item()
         running_regression_loss += regression_loss.item()
         running_classification_loss += classification_loss.item()
+        epoch_loss += loss.item()
+        epoch_regression_loss += regression_loss.item()
+        epoch_classification_loss += classification_loss.item()
         if i and i % debug_steps == 0:
             avg_loss = running_loss / debug_steps
             avg_reg_loss = running_regression_loss / debug_steps
@@ -154,7 +160,15 @@ def train(loader, net, criterion, optimizer, device, debug_steps=100, epoch=-1):
             running_loss = 0.0
             running_regression_loss = 0.0
             running_classification_loss = 0.0
-
+    epoch_loss = epoch_loss / len(loader)
+    epoch_regression_loss = epoch_regression_loss / len(loader)
+    epoch_classification_loss = epoch_classification_loss / len(loader)
+    logging.info(
+        f"Epoch: {epoch}: Training Loss: {epoch_loss:.4f}, " +
+        f"Training Regression Loss: {epoch_regression_loss:.4f}, " +
+        f"Training Classification Loss: {epoch_classification_loss:.4f}"
+    )
+    return epoch_loss, epoch_regression_loss, epoch_classification_loss
 
 def test(loader, net, criterion, device):
     net.eval()
@@ -193,7 +207,7 @@ if __name__ == '__main__':
             os.mkdir(args.checkpoint_folder)
 
     # create and prepare csv file for retaining training result data
-    fieldnames = ['epoch', 'learning_rate', 'validation_loss', 'regression_loss', 'classification_loss']
+    fieldnames = ['epoch', 'learning_rate', 'training_loss', 'training_regression_loss', 'training_classification_loss', 'validation_loss', 'validation_regression_loss', 'validation_classification_loss']
     start_time = dt.utcnow().strftime('%Y-%m-%d_%H%M.%S')
     report_path = os.path.join(args.checkpoint_folder, f"{start_time}_loss.report.csv")
     with open(report_path, 'a') as report_file:
@@ -411,14 +425,19 @@ if __name__ == '__main__':
     
     for epoch in range(last_epoch + 1, args.num_epochs + r_epoch + 1):
         val_loss = 0
-        train(train_loader, net, criterion, optimizer,
-              device=DEVICE, debug_steps=args.debug_steps, epoch=epoch)
+        epoch_loss, epoch_regression_loss, epoch_classification_loss = train(
+            train_loader, net, criterion, optimizer,
+            device=DEVICE, debug_steps=args.debug_steps, epoch=epoch)
         
         if epoch % args.validation_epochs == 0 or epoch == args.num_epochs - 1:
             val_loss, val_regression_loss, val_classification_loss = test(val_loader, net, criterion, DEVICE)
             with open(report_path, 'a') as report_file:
                 writer = csv.DictWriter(report_file, fieldnames=fieldnames)
-                writer.writerow({'epoch':epoch, 'learning_rate':get_current_lr(optimizer), 'validation_loss':val_loss, 'regression_loss':val_regression_loss, 'classification_loss':val_classification_loss})
+                writer.writerow({'epoch':epoch, 'learning_rate':get_current_lr(optimizer), 
+                'training_loss':epoch_loss, 'training_regression_loss':epoch_regression_loss,
+                "training_classification_loss":epoch_classification_loss,
+                'validation_loss':val_loss, 'validation_regression_loss':val_regression_loss, 
+                'validation_classification_loss':val_classification_loss})
             logging.info(
                 f"Epoch: {epoch}, " +
                 f"Validation Loss: {val_loss:.4f}, " +
