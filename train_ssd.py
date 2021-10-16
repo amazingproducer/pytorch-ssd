@@ -128,7 +128,7 @@ def train(loader, net, criterion, optimizer, device, debug_steps=100, epoch=-1):
     epoch_loss = 0.0
     epoch_regression_loss = 0.0
     epoch_classification_loss = 0.0
-    print(f"DataLoader length: {len(loader)}, Dataset length: {len(train_dataset)}")
+    print(f"Batch size: {args.batch_size}, DataLoader length: {len(loader)}, Dataset length: {len(train_dataset)}")
     for i, data in enumerate(loader):
         images, boxes, labels = data
         images = images.to(device)
