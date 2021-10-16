@@ -163,9 +163,12 @@ def train(loader, net, criterion, optimizer, device, debug_steps=100, epoch=-1):
             running_loss = 0.0
             running_regression_loss = 0.0
             running_classification_loss = 0.0
-    epoch_loss = epoch_loss / epoch_steps
-    epoch_regression_loss = epoch_regression_loss / epoch_steps
-    epoch_classification_loss = epoch_classification_loss / epoch_steps
+    # epoch_loss = epoch_loss / epoch_steps
+    # epoch_regression_loss = epoch_regression_loss / epoch_steps
+    # epoch_classification_loss = epoch_classification_loss / epoch_steps
+    epoch_loss = epoch_loss
+    epoch_regression_loss = epoch_regression_loss
+    epoch_classification_loss = epoch_classification_loss
     logging.info(
         f"Epoch: {epoch}: Training Loss: {epoch_loss:.4f}, " +
         f"Training Regression Loss: {epoch_regression_loss:.4f}, " +
