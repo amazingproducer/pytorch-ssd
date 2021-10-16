@@ -7,6 +7,6 @@ This repo expands upon the work presented in [https://github.com/qfgaohao/pytorc
 ## - Inclusion of Optimizer `state_dict` in training checkpoint files
      - Facilitates the resumption of training sessions at previously-determined learning rates
 ## - Awareness of previous session epoch when using `resume` feature
-     - Epoch numeration of checkpoint files for resumed sessions starts at the loaded checkpoint file's epoch value.
+     - Epoch numeration of checkpoint files for resumed sessions starts after the loaded checkpoint file's epoch value.
 ## - Generation of CSV loss reports for each training session
-     - One epoch per row; includes learning rate, validation/regression/classification losses
+     - One epoch per row; includes learning rate, training/validation losses
