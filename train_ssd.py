@@ -129,7 +129,7 @@ def train(loader, net, criterion, optimizer, device, debug_steps=100, epoch=-1):
     epoch_regression_loss = 0.0
     epoch_classification_loss = 0.0
     epoch_steps = 0
-    print(f"Batch size: {args.batch_size}, DataLoader length: {len(loader)}, Dataset length: {len(train_dataset)}")
+#    print(f"Batch size: {args.batch_size}, DataLoader length: {len(loader)}, Dataset length: {len(train_dataset)}")
     for i, data in enumerate(loader):
         images, boxes, labels = data
         images = images.to(device)
@@ -170,8 +170,8 @@ def train(loader, net, criterion, optimizer, device, debug_steps=100, epoch=-1):
     epoch_regression_loss = epoch_regression_loss / len(loader)
     epoch_classification_loss = epoch_classification_loss /len(loader)
     logging.info(
-        f"Epoch: {epoch}, Total Steps: {epoch_steps}, Loader Size: {len(loader)}, "+
-        f"Training Loss: {epoch_loss:.4f}, " +
+#        f"Epoch: {epoch}, Total Steps: {epoch_steps}, Loader Size: {len(loader)}, "+
+        f"Epoch: {epoch}, Training Loss: {epoch_loss:.4f}, " +
         f"Training Regression Loss: {epoch_regression_loss:.4f}, " +
         f"Training Classification Loss: {epoch_classification_loss:.4f}"
     )
